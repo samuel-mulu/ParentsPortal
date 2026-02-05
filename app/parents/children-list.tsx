@@ -247,7 +247,7 @@ export default function ChildrenList() {
 
               {/* Right Section */}
               <div className="flex items-center space-x-4">
-                <Link href="/parents/add-student">
+                <Link href="/parents/add-child">
                   <Button
                     size="lg"
                     className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200 group"
@@ -285,7 +285,7 @@ export default function ChildrenList() {
                 Start by adding your first student to track their attendance,
                 homework, results, and payments all in one place.
               </p>
-              <Link href="/parents/add-student">
+              <Link href="/parents/add-child">
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200 group"
@@ -336,7 +336,7 @@ export default function ChildrenList() {
               )}
 
               {/* Floating Add Button */}
-              <Link href="/parents/add-student">
+              <Link href="/parents/add-child">
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transition-all duration-200 group"
