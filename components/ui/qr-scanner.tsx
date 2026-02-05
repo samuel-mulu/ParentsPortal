@@ -29,7 +29,7 @@ export default function QRScanner({ onScan, onError }: QRScannerProps) {
       if (stream) {
         setHasCamera(true);
         if (videoRef.current) {
-          videoRef.current.srcObjectURL = stream;
+          videoRef.current.srcObject = stream;
         }
       }
     } catch (error) {
@@ -109,9 +109,9 @@ export default function QRScanner({ onScan, onError }: QRScannerProps) {
 
     // Stop video stream if it exists
     if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject;
+      const stream = videoRef.current.srcObject as MediaStream;
       const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
+      tracks.forEach((track: MediaStreamTrack) => track.stop());
     }
 
     // Clear canvas

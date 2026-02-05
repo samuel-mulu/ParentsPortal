@@ -66,8 +66,8 @@ export default function AddChildPage() {
     } catch (err) {
       console.error(" Frontend error:", err);
       console.error(" Error details:", {
-        message: err.message,
-        stack: err.stack,
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
         studentId: studentId.trim(),
       });
       setError("Network error. Please try again.");
