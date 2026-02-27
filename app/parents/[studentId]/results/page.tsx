@@ -1,6 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getResultsByStudentId } from "@/lib/students";
+import ResultsClient from "./results-client";
 
 export default async function ResultsPage({
   params,
@@ -12,44 +11,14 @@ export default async function ResultsPage({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Exam Results</h2>
+      <div>
+        <h2 className="text-lg font-semibold">Exam Results</h2>
+        <p className="text-sm text-muted-foreground">
+          View and filter your child&apos;s exam results by term or subject.
+        </p>
+      </div>
 
-      {results.length === 0 ? (
-        <div className="p-8 border-2 border-dashed rounded-lg text-center text-muted-foreground">
-          No exam results published yet.
-        </div>
-      ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Subject</TableHead>
-                <TableHead>Exam</TableHead>
-                <TableHead>Term</TableHead>
-                <TableHead>Score</TableHead>
-                <TableHead>Grade</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {results.map((mark: any) => (
-                <TableRow key={mark.id}>
-                  <TableCell className="font-medium">{mark.subject_name}</TableCell>
-                  <TableCell>{mark.exam_name}</TableCell>
-                  <TableCell>{mark.term_name}</TableCell>
-                  <TableCell>
-                    {mark.score} / {mark.max_score}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {mark.grade || "N/A"}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      <ResultsClient results={results as any} />
     </div>
   );
 }
