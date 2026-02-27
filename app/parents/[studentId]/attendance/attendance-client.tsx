@@ -97,9 +97,13 @@ export default function AttendanceClient({
 
   // Summary counts (over ALL records, not just filtered)
   const summary = useMemo(() => {
-    const counts: Record<string, number> = { present: 0, absent: 0, late: 0 };
+    const counts: { present: number; absent: number; late: number } = {
+      present: 0,
+      absent: 0,
+      late: 0,
+    };
     for (const r of attendance) {
-      const k = r.status.toLowerCase();
+      const k = r.status.toLowerCase() as keyof typeof counts;
       if (k in counts) counts[k]++;
     }
     const total = attendance.length;
@@ -139,10 +143,10 @@ export default function AttendanceClient({
           </p>
           <p
             className={`text-3xl font-bold ${summary.pct >= 90
-                ? "text-green-600"
-                : summary.pct >= 75
-                  ? "text-yellow-600"
-                  : "text-red-500"
+              ? "text-green-600"
+              : summary.pct >= 75
+                ? "text-yellow-600"
+                : "text-red-500"
               }`}
           >
             {summary.pct}%
