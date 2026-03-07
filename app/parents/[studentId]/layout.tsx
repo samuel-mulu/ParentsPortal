@@ -3,6 +3,7 @@ import { sql } from "@/lib/db";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import CalendarToggle from "./calendar-toggle-wrapper";
 import SaveStudentButton from "./save-student-direct";
 import StudentTabs from "./student-tabs";
 
@@ -98,6 +99,7 @@ export default async function StudentLayout({
             </div>
 
             <div className="flex items-center">
+              <CalendarToggle />
               <SaveStudentButton studentId={student.id} />
             </div>
           </div>

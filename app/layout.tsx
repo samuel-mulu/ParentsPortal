@@ -1,3 +1,4 @@
+import { CalendarProvider } from "@/lib/calendar-context";
 import "./globals.css";
 
 export default function RootLayout({
@@ -7,7 +8,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-background text-foreground">{children}</body>
+      <body className="bg-background text-foreground">
+        <CalendarProvider>{children}</CalendarProvider>
+      </body>
     </html>
   );
 }

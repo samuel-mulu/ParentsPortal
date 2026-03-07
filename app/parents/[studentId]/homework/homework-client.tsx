@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { useCalendarSystem } from "@/lib/calendar-context";
 import { useMemo, useState } from "react";
 
 type HomeworkRecord = {
@@ -79,6 +80,8 @@ export default function HomeworkClient({
 }: {
   homework: HomeworkRecord[];
 }) {
+  const { calendarSystem } = useCalendarSystem();
+
   // Derive filter options
   const subjects = useMemo(
     () =>
@@ -316,7 +319,6 @@ export default function HomeworkClient({
             {/* Assignment cards */}
             <div className="rounded-xl border overflow-hidden divide-y">
               {records.map((record) => {
-                const { day, date } = formatDate(record.date);
                 const cfg = getStatusConfig(record.status);
                 const dueSoon = isDueSoon(record.date);
                 const overdue = isOverdue(record.date);
@@ -329,10 +331,12 @@ export default function HomeworkClient({
                     {/* Day + date */}
                     <div className="w-24 shrink-0">
                       <p className="text-xs font-semibold text-muted-foreground uppercase">
-                        {day}
+                        {new Date(record.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                        })}
                       </p>
                       <p className="text-sm font-medium leading-tight">
-                        {date}
+                        {formatDateForUI(record.date, calendarSystem)}
                       </p>
                       {dueSoon && !overdue && (
                         <p className="text-xs text-yellow-600 font-medium mt-1">

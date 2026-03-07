@@ -39,7 +39,11 @@ function formatDate(dateStr: string) {
   const d = new Date(dateStr);
   return {
     day: d.toLocaleDateString("en-US", { weekday: "short" }),
-    date: d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
+    date: d.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
     monthKey: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
   };
 }
@@ -60,24 +64,27 @@ export default function AttendanceClient({
 }: {
   attendance: AttendanceRecord[];
 }) {
-  // Derive filter options
+  const { calendarSystem } = useCalendarSystem();
+
+  // Derive unique filter options
   const months = useMemo(() => {
     const seen = new Set<string>();
     const order: string[] = [];
     // Records are already newest-first from the DB; we preserve that order
     for (const r of attendance) {
-      const key = formatDate(r.date).monthKey;
+      const key = formatDateForUI(r.date, calendarSystem).monthKey;
       if (!seen.has(key)) {
         seen.add(key);
         order.push(key);
       }
     }
     return order;
-  }, [attendance]);
+  }, [attendance, calendarSystem]);
 
   const statuses = useMemo(
-    () => Array.from(new Set(attendance.map((r) => r.status.toLowerCase()))).sort(),
-    [attendance]
+    () =>
+      Array.from(new Set(attendance.map((r) => r.status.toLowerCase()))).sort(),
+    [attendance],
   );
 
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
@@ -89,10 +96,11 @@ export default function AttendanceClient({
         const { monthKey } = formatDate(r.date);
         return (
           (selectedMonth === "all" || monthKey === selectedMonth) &&
-          (selectedStatus === "all" || r.status.toLowerCase() === selectedStatus)
+          (selectedStatus === "all" ||
+            r.status.toLowerCase() === selectedStatus)
         );
       }),
-    [attendance, selectedMonth, selectedStatus]
+    [attendance, selectedMonth, selectedStatus],
   );
 
   // Summary counts (over ALL records, not just filtered)
@@ -127,7 +135,9 @@ export default function AttendanceClient({
       <div className="p-10 border-2 border-dashed rounded-xl text-center text-muted-foreground">
         <div className="text-4xl mb-3">📅</div>
         <p className="font-medium">No attendance records found yet.</p>
-        <p className="text-sm mt-1">Records will appear here once they are added.</p>
+        <p className="text-sm mt-1">
+          Records will appear here once they are added.
+        </p>
       </div>
     );
   }
@@ -142,21 +152,26 @@ export default function AttendanceClient({
             Attendance Rate
           </p>
           <p
-            className={`text-3xl font-bold ${summary.pct >= 90
-              ? "text-green-600"
-              : summary.pct >= 75
-                ? "text-yellow-600"
-                : "text-red-500"
-              }`}
+            className={`text-3xl font-bold ${
+              summary.pct >= 90
+                ? "text-green-600"
+                : summary.pct >= 75
+                  ? "text-yellow-600"
+                  : "text-red-500"
+            }`}
           >
             {summary.pct}%
           </p>
-          <p className="text-xs text-muted-foreground">{summary.total} total days</p>
+          <p className="text-xs text-muted-foreground">
+            {summary.total} total days
+          </p>
         </div>
 
         {/* Present */}
         <div className="rounded-xl border border-l-4 border-l-green-500 bg-card p-4 flex flex-col gap-1 shadow-sm">
-          <p className="text-xs text-muted-foreground font-medium">✅ Present</p>
+          <p className="text-xs text-muted-foreground font-medium">
+            ✅ Present
+          </p>
           <p className="text-2xl font-bold text-green-600">{summary.present}</p>
           <p className="text-xs text-muted-foreground">days</p>
         </div>
@@ -239,7 +254,8 @@ export default function AttendanceClient({
 
       {/* ── Record count ─────────────────────────────── */}
       <p className="text-sm text-muted-foreground">
-        Showing <strong>{filtered.length}</strong> record{filtered.length !== 1 && "s"}
+        Showing <strong>{filtered.length}</strong> record
+        {filtered.length !== 1 && "s"}
         {selectedMonth !== "all" && (
           <>
             {" "}
@@ -264,9 +280,15 @@ export default function AttendanceClient({
 
       {/* ── Grouped by month ─────────────────────────── */}
       {Object.entries(grouped).map(([month, records]) => {
-        const mPresent = records.filter((r) => r.status.toLowerCase() === "present").length;
-        const mAbsent = records.filter((r) => r.status.toLowerCase() === "absent").length;
-        const mLate = records.filter((r) => r.status.toLowerCase() === "late").length;
+        const mPresent = records.filter(
+          (r) => r.status.toLowerCase() === "present",
+        ).length;
+        const mAbsent = records.filter(
+          (r) => r.status.toLowerCase() === "absent",
+        ).length;
+        const mLate = records.filter(
+          (r) => r.status.toLowerCase() === "late",
+        ).length;
 
         return (
           <div key={month} className="space-y-2">
@@ -316,7 +338,9 @@ export default function AttendanceClient({
                       <p className="text-xs font-semibold text-muted-foreground uppercase">
                         {day}
                       </p>
-                      <p className="text-sm font-medium leading-tight">{date}</p>
+                      <p className="text-sm font-medium leading-tight">
+                        {date}
+                      </p>
                     </div>
 
                     {/* Class */}
