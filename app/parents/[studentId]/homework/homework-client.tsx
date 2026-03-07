@@ -80,18 +80,13 @@ export default function HomeworkClient({
   homework: HomeworkRecord[];
 }) {
   // Derive filter options
-  const months = useMemo(() => {
-    const seen = new Set<string>();
-    const order: string[] = [];
-    for (const r of homework) {
-      const key = formatDate(r.date).monthKey;
-      if (!seen.has(key)) {
-        seen.add(key);
-        order.push(key);
-      }
-    }
-    return order;
-  }, [homework]);
+  const subjects = useMemo(
+    () =>
+      Array.from(
+        new Set(homework.map((r) => r.subject_name || "Unknown Subject")),
+      ).sort(),
+    [homework],
+  );
 
   const statuses = useMemo(
     () =>
@@ -99,20 +94,20 @@ export default function HomeworkClient({
     [homework],
   );
 
-  const [selectedMonth, setSelectedMonth] = useState<string>("all");
+  const [selectedSubject, setSelectedSubject] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
 
   const filtered = useMemo(
     () =>
       homework.filter((r) => {
-        const { monthKey } = formatDate(r.date);
         return (
-          (selectedMonth === "all" || monthKey === selectedMonth) &&
+          (selectedSubject === "all" ||
+            (r.subject_name || "Unknown Subject") === selectedSubject) &&
           (selectedStatus === "all" ||
             r.status.toLowerCase() === selectedStatus)
         );
       }),
-    [homework, selectedMonth, selectedStatus],
+    [homework, selectedSubject, selectedStatus],
   );
 
   // Summary counts
@@ -130,11 +125,11 @@ export default function HomeworkClient({
     return { ...counts, total, pct };
   }, [homework]);
 
-  // Group filtered records by month
+  // Group filtered records by subject
   const grouped = useMemo(() => {
     const map: Record<string, HomeworkRecord[]> = {};
     for (const r of filtered) {
-      const key = formatDate(r.date).monthKey;
+      const key = r.subject_name || "Unknown Subject";
       if (!map[key]) map[key] = [];
       map[key].push(r);
     }
@@ -201,20 +196,20 @@ export default function HomeworkClient({
           Filter Assignments
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Month */}
+          {/* Subject */}
           <div className="flex-1">
             <label className="text-xs font-medium text-muted-foreground block mb-1">
-              📅 Month
+              � Subject
             </label>
             <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(e.target.value)}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="all">All Months</option>
-              {months.map((m) => (
-                <option key={m} value={m}>
-                  {m}
+              <option value="all">All Subjects</option>
+              {subjects.map((subject) => (
+                <option key={subject} value={subject}>
+                  {subject}
                 </option>
               ))}
             </select>
@@ -240,11 +235,11 @@ export default function HomeworkClient({
           </div>
 
           {/* Reset */}
-          {(selectedMonth !== "all" || selectedStatus !== "all") && (
+          {(selectedSubject !== "all" || selectedStatus !== "all") && (
             <div className="flex items-end">
               <button
                 onClick={() => {
-                  setSelectedMonth("all");
+                  setSelectedSubject("all");
                   setSelectedStatus("all");
                 }}
                 className="px-4 py-2 rounded-lg border text-sm text-muted-foreground hover:bg-muted transition-colors"
@@ -260,10 +255,10 @@ export default function HomeworkClient({
       <p className="text-sm text-muted-foreground">
         Showing <strong>{filtered.length}</strong> assignment
         {filtered.length !== 1 && "s"}
-        {selectedMonth !== "all" && (
+        {selectedSubject !== "all" && (
           <>
             {" "}
-            for <strong>{selectedMonth}</strong>
+            for <strong>{selectedSubject}</strong>
           </>
         )}
         {selectedStatus !== "all" && (
@@ -282,38 +277,38 @@ export default function HomeworkClient({
         </div>
       )}
 
-      {/* ── Grouped by month ─────────────────────────── */}
-      {Object.entries(grouped).map(([month, records]) => {
-        const mDone = records.filter(
+      {/* ── Grouped by subject ─────────────────────────── */}
+      {Object.entries(grouped).map(([subject, records]) => {
+        const sDone = records.filter(
           (r) => r.status.toLowerCase() === "done",
         ).length;
-        const mNotDone = records.filter(
+        const sNotDone = records.filter(
           (r) => r.status.toLowerCase() === "not_done",
         ).length;
 
         return (
-          <div key={month} className="space-y-2">
-            {/* Month header */}
+          <div key={subject} className="space-y-2">
+            {/* Subject header */}
             <div className="flex items-center gap-2">
               <div className="h-px flex-1 bg-border" />
               <span className="text-sm font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary whitespace-nowrap">
-                📅 {month}
+                � {subject}
               </span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
-            {/* Month mini summary */}
+            {/* Subject mini summary */}
             <div className="flex gap-2 flex-wrap text-xs text-muted-foreground px-1 pb-1">
-              {mDone > 0 && (
+              {sDone > 0 && (
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-                  {mDone} done
+                  {sDone} done
                 </span>
               )}
-              {mNotDone > 0 && (
+              {sNotDone > 0 && (
                 <span className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
-                  {mNotDone} not done
+                  {sNotDone} not done
                 </span>
               )}
             </div>
