@@ -1,6 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { useCalendarSystem } from "@/lib/calendar-context";
+import { formatDateForUI } from "@/lib/ethiopian-calendar";
 import { useMemo, useState } from "react";
 
 type AttendanceRecord = {
