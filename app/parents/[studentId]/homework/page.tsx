@@ -1,13 +1,24 @@
-export default function HomeworkPage() {
+import { getHomeworkByStudentId } from "@/lib/students";
+import HomeworkClient from "./homework-client";
+
+export default async function HomeworkPage({
+  params,
+}: {
+  params: Promise<{ studentId: string }>;
+}) {
+  const { studentId } = await params;
+  const homework = await getHomeworkByStudentId(studentId);
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Upcoming Homework</h2>
-      <p className="text-muted-foreground text-sm">
-        Assigned homework and projects will be listed here.
-      </p>
-      <div className="p-8 border-2 border-dashed rounded-lg text-center text-muted-foreground">
-        No homework assignments found yet.
+      <div>
+        <h2 className="text-lg font-semibold">Upcoming Homework</h2>
+        <p className="text-sm text-muted-foreground">
+          Filter by month or status to track your child&apos;s homework assignments.
+        </p>
       </div>
+
+      <HomeworkClient homework={homework as any} />
     </div>
   );
 }

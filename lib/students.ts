@@ -3,8 +3,6 @@ import { neon } from "@neondatabase/serverless";
 export const sql = neon(process.env.DATABASE_URL!);
 
 export async function verifyStudentById(studentId: string) {
-  console.log("🔍 verifyStudentById called with:", studentId);
-
   try {
     const rows = await sql`
       SELECT
@@ -18,20 +16,16 @@ export async function verifyStudentById(studentId: string) {
       LIMIT 1
     `;
 
-    console.log("📊 Database query result:", rows);
     const student = rows[0];
 
     if (!student) {
-      console.log("❌ No student found");
       return null;
     }
 
     if (!student.parent_portal) {
-      console.log("❌ Parents portal access disabled");
       return null;
     }
 
-    console.log("✅ Student verified successfully");
     return {
       id: student.id,
       full_name: `${student.first_name} ${student.last_name}`,
@@ -108,6 +102,34 @@ export async function getResultsByStudentId(studentId: string) {
     `;
   } catch (error) {
     console.error("💥 Database error in getResultsByStudentId:", error);
+    throw error;
+  }
+}
+
+export async function getHomeworkByStudentId(studentId: string) {
+  try {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    return await sql`
+      SELECT 
+        h.id,
+        h.title,
+        h.description,
+        h.date,
+        h.status,
+        h.notes,
+        c.name as class_name,
+        s.name as subject_name
+      FROM "Homework" h
+      LEFT JOIN "Class" c ON h."classId" = c.id
+      LEFT JOIN "Subject" s ON h."subjectId" = s.id
+      WHERE h."studentId" = ${studentId}
+        AND h.date >= ${today}
+      ORDER BY h.date ASC
+    `;
+  } catch (error) {
+    console.error("💥 Database error in getHomeworkByStudentId:", error);
     throw error;
   }
 }
