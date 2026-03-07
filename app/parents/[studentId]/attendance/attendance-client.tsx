@@ -335,7 +335,11 @@ export default function AttendanceClient({
                         })}
                       </p>
                       <p className="text-sm font-medium leading-tight">
-                        {formatDateForUI(record.date, calendarSystem)}
+                        {new Date(record.date).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </p>
                     </div>
 

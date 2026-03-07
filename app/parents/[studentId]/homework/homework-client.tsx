@@ -3,7 +3,6 @@
 import CalendarToggle from "@/components/calendar-toggle";
 import { Badge } from "@/components/ui/badge";
 import { useCalendarSystem } from "@/lib/calendar-context";
-import { formatDateForUI } from "@/lib/ethiopian-calendar";
 import { useMemo, useState } from "react";
 
 type HomeworkRecord = {
@@ -330,7 +329,11 @@ export default function HomeworkClient({
                         })}
                       </p>
                       <p className="text-sm font-medium leading-tight">
-                        {formatDateForUI(record.date, calendarSystem)}
+                        {new Date(record.date).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </p>
                       {dueSoon && !overdue && (
                         <p className="text-xs text-yellow-600 font-medium mt-1">
