@@ -6,9 +6,17 @@ import { Calendar } from "lucide-react";
 
 export default function CalendarToggle() {
   const { calendarSystem, setCalendarSystem } = useCalendarSystem();
+  console.log("🗓️ CalendarToggle rendering with system:", calendarSystem);
 
   const toggleCalendar = () => {
-    setCalendarSystem(calendarSystem === "gregorian" ? "ethiopian" : "gregorian");
+    console.log("🔄 Toggling calendar from", calendarSystem);
+    try {
+      setCalendarSystem(
+        calendarSystem === "gregorian" ? "ethiopian" : "gregorian",
+      );
+    } catch (error) {
+      console.error("❌ Error toggling calendar:", error);
+    }
   };
 
   return (
@@ -16,7 +24,7 @@ export default function CalendarToggle() {
       variant="outline"
       size="sm"
       onClick={toggleCalendar}
-      className="gap-2 text-xs"
+      className="gap-2 text-xs bg-white hover:bg-gray-50 border-gray-200"
     >
       <Calendar className="w-3 h-3" />
       {calendarSystem === "ethiopian" ? "የኢትዮጵያ" : "Gregorian"}

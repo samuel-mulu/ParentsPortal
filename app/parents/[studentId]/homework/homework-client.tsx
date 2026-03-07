@@ -1,7 +1,9 @@
 "use client";
 
+import CalendarToggle from "@/components/calendar-toggle";
 import { Badge } from "@/components/ui/badge";
 import { useCalendarSystem } from "@/lib/calendar-context";
+import { formatDateForUI } from "@/lib/ethiopian-calendar";
 import { useMemo, useState } from "react";
 
 type HomeworkRecord = {
@@ -32,19 +34,6 @@ const STATUS_CONFIG: Record<
     cardCls: "border-l-red-500",
   },
 };
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return {
-    day: d.toLocaleDateString("en-US", { weekday: "short" }),
-    date: d.toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }),
-    monthKey: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-  };
-}
 
 function getStatusConfig(status: string) {
   return (
@@ -81,7 +70,6 @@ export default function HomeworkClient({
   homework: HomeworkRecord[];
 }) {
   const { calendarSystem } = useCalendarSystem();
-
   // Derive filter options
   const subjects = useMemo(
     () =>
@@ -153,6 +141,12 @@ export default function HomeworkClient({
 
   return (
     <div className="space-y-5">
+      {/* ── Header with Calendar Toggle ─────────────────────── */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Homework Assignments</h2>
+        <CalendarToggle />
+      </div>
+
       {/* ── Summary stats ──────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {/* Completion Rate */}

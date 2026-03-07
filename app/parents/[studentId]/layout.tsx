@@ -1,9 +1,11 @@
+"use server";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { sql } from "@/lib/db";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import CalendarToggle from "./calendar-toggle-wrapper";
+import CalendarWrapper from "../../../components/CalendarWrapper";
 import SaveStudentButton from "./save-student-direct";
 import StudentTabs from "./student-tabs";
 
@@ -99,7 +101,6 @@ export default async function StudentLayout({
             </div>
 
             <div className="flex items-center">
-              <CalendarToggle />
               <SaveStudentButton studentId={student.id} />
             </div>
           </div>
@@ -108,7 +109,9 @@ export default async function StudentLayout({
         <StudentTabs studentId={student.id} />
       </header>
 
-      <main className="p-4">{children}</main>
+      <main className="p-4">
+        <CalendarWrapper>{children}</CalendarWrapper>
+      </main>
     </div>
   );
 }

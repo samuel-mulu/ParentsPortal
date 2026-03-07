@@ -1,5 +1,6 @@
 "use client";
 
+import CalendarToggle from "@/components/calendar-toggle";
 import { Badge } from "@/components/ui/badge";
 import { useCalendarSystem } from "@/lib/calendar-context";
 import { formatDateForUI } from "@/lib/ethiopian-calendar";
@@ -37,19 +38,6 @@ const STATUS_CONFIG: Record<
   },
 };
 
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return {
-    day: d.toLocaleDateString("en-US", { weekday: "short" }),
-    date: d.toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }),
-    monthKey: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-  };
-}
-
 function getStatusConfig(status: string) {
   return (
     STATUS_CONFIG[status.toLowerCase()] ?? {
@@ -67,14 +55,13 @@ export default function AttendanceClient({
   attendance: AttendanceRecord[];
 }) {
   const { calendarSystem } = useCalendarSystem();
-
   // Derive unique filter options
   const months = useMemo(() => {
     const seen = new Set<string>();
     const order: string[] = [];
     // Records are already newest-first from the DB; we preserve that order
     for (const r of attendance) {
-      const key = formatDateForUI(r.date, calendarSystem).monthKey;
+      const key = formatDateForUI(r.date, calendarSystem);
       if (!seen.has(key)) {
         seen.add(key);
         order.push(key);
@@ -95,14 +82,14 @@ export default function AttendanceClient({
   const filtered = useMemo(
     () =>
       attendance.filter((r) => {
-        const { monthKey } = formatDate(r.date);
+        const formattedDate = formatDateForUI(r.date, calendarSystem);
         return (
-          (selectedMonth === "all" || monthKey === selectedMonth) &&
+          (selectedMonth === "all" || formattedDate === selectedMonth) &&
           (selectedStatus === "all" ||
             r.status.toLowerCase() === selectedStatus)
         );
       }),
-    [attendance, selectedMonth, selectedStatus],
+    [attendance, selectedMonth, selectedStatus, calendarSystem],
   );
 
   // Summary counts (over ALL records, not just filtered)
@@ -125,12 +112,12 @@ export default function AttendanceClient({
   const grouped = useMemo(() => {
     const map: Record<string, AttendanceRecord[]> = {};
     for (const r of filtered) {
-      const key = formatDate(r.date).monthKey;
+      const key = formatDateForUI(r.date, calendarSystem);
       if (!map[key]) map[key] = [];
       map[key].push(r);
     }
     return map;
-  }, [filtered]);
+  }, [filtered, calendarSystem]);
 
   if (attendance.length === 0) {
     return (
@@ -146,6 +133,12 @@ export default function AttendanceClient({
 
   return (
     <div className="space-y-5">
+      {/* ── Header with Calendar Toggle ─────────────────────── */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Attendance Records</h2>
+        <CalendarToggle />
+      </div>
+
       {/* ── Summary stats ──────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Attendance Rate */}
@@ -328,7 +321,6 @@ export default function AttendanceClient({
             {/* Day cards */}
             <div className="rounded-xl border overflow-hidden divide-y">
               {records.map((record) => {
-                const { day, date } = formatDate(record.date);
                 const cfg = getStatusConfig(record.status);
                 return (
                   <div
@@ -336,20 +328,24 @@ export default function AttendanceClient({
                     className={`flex items-center gap-4 px-4 py-3 border-l-4 bg-card ${cfg.cardCls}`}
                   >
                     {/* Day + date */}
-                    <div className="w-24 shrink-0">
+                    <div className="w-20 shrink-0">
                       <p className="text-xs font-semibold text-muted-foreground uppercase">
-                        {day}
+                        {new Date(record.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                        })}
                       </p>
                       <p className="text-sm font-medium leading-tight">
-                        {date}
+                        {formatDateForUI(record.date, calendarSystem)}
                       </p>
                     </div>
 
-                    {/* Class */}
+                    {/* Details */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground truncate">
-                        {record.class_name || "—"}
-                      </p>
+                      <div className="flex gap-2 text-xs text-muted-foreground">
+                        <span className="font-medium">
+                          {record.class_name || "—"}
+                        </span>
+                      </div>
                       {record.notes && (
                         <p className="text-xs text-muted-foreground italic truncate mt-0.5">
                           {record.notes}

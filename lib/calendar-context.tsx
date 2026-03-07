@@ -1,55 +1,16 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { CalendarSystem } from "./ethiopian-calendar";
+import { createContext, ReactNode, useContext, useState } from "react";
+import type { CalendarSystem } from "./ethiopian-calendar";
 
 interface CalendarContextType {
   calendarSystem: CalendarSystem;
   setCalendarSystem: (system: CalendarSystem) => void;
 }
 
-const CalendarContext = createContext<CalendarContextType | undefined>(undefined);
-
-const STORAGE_KEY = "calendarSystem";
-
-export function CalendarProvider({ children }: { children: ReactNode }) {
-  const [calendarSystem, setCalendarSystemState] = useState<CalendarSystem>("gregorian");
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === "gregorian" || stored === "ethiopian") {
-        setCalendarSystemState(stored);
-      }
-    } catch (error) {
-      console.error("Failed to load calendar system from localStorage:", error);
-    } finally {
-      setIsHydrated(true);
-    }
-  }, []);
-
-  const setCalendarSystem = (system: CalendarSystem) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, system);
-      setCalendarSystemState(system);
-    } catch (error) {
-      console.error("Failed to save calendar system to localStorage:", error);
-    }
-  };
-
-  // Prevent hydration mismatch by not rendering until localStorage is read
-  if (!isHydrated) {
-    return <>{children}</>;
-  }
-
-  return (
-    <CalendarContext.Provider value={{ calendarSystem, setCalendarSystem }}>
-      {children}
-    </CalendarContext.Provider>
-  );
-}
+const CalendarContext = createContext<CalendarContextType | undefined>(
+  undefined,
+);
 
 export function useCalendarSystem() {
   const context = useContext(CalendarContext);
@@ -57,4 +18,48 @@ export function useCalendarSystem() {
     throw new Error("useCalendarSystem must be used within a CalendarProvider");
   }
   return context;
+}
+
+interface CalendarProviderProps {
+  children: ReactNode;
+}
+
+export function CalendarProvider({ children }: CalendarProviderProps) {
+  const [calendarSystem, setCalendarSystemState] = useState<CalendarSystem>(
+    () => {
+      // Initialize from localStorage synchronously
+      if (typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("calendarSystem");
+          return stored === "gregorian" || stored === "ethiopian"
+            ? stored
+            : "gregorian";
+        } catch (error) {
+          console.warn(
+            "Failed to load calendar system from localStorage:",
+            error,
+          );
+          return "gregorian";
+        }
+      }
+      return "gregorian";
+    },
+  );
+
+  const setCalendarSystem = (system: CalendarSystem) => {
+    try {
+      localStorage.setItem("calendarSystem", system);
+      setCalendarSystemState(system);
+    } catch (error) {
+      // Still update state even if localStorage fails
+      console.warn("Failed to save calendar system to localStorage:", error);
+      setCalendarSystemState(system);
+    }
+  };
+
+  return (
+    <CalendarContext.Provider value={{ calendarSystem, setCalendarSystem }}>
+      {children}
+    </CalendarContext.Provider>
+  );
 }
