@@ -147,28 +147,7 @@ export default function HomeworkClient({
       </div>
 
       {/* ── Summary stats ──────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {/* Completion Rate */}
-        <div className="col-span-2 sm:col-span-1 rounded-xl border bg-card p-4 flex flex-col gap-1 shadow-sm">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-            Completion Rate
-          </p>
-          <p
-            className={`text-3xl font-bold ${
-              summary.pct >= 80
-                ? "text-green-600"
-                : summary.pct >= 50
-                  ? "text-yellow-600"
-                  : "text-red-500"
-            }`}
-          >
-            {summary.pct}%
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {summary.total} total assignments
-          </p>
-        </div>
-
+      <div className="grid grid-cols-2 gap-3">
         {/* Done */}
         <div className="rounded-xl border border-l-4 border-l-green-500 bg-card p-4 flex flex-col gap-1 shadow-sm">
           <p className="text-xs text-muted-foreground font-medium">✅ Done</p>

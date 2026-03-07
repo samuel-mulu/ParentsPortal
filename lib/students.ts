@@ -108,9 +108,6 @@ export async function getResultsByStudentId(studentId: string) {
 
 export async function getHomeworkByStudentId(studentId: string) {
   try {
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-
     return await sql`
       SELECT 
         h.id,
@@ -125,8 +122,7 @@ export async function getHomeworkByStudentId(studentId: string) {
       LEFT JOIN "Class" c ON h."classId" = c.id
       LEFT JOIN "Subject" s ON h."subjectId" = s.id
       WHERE h."studentId" = ${studentId}
-        AND h.date >= ${today}
-      ORDER BY h.date ASC
+      ORDER BY h.date DESC
     `;
   } catch (error) {
     console.error("💥 Database error in getHomeworkByStudentId:", error);
