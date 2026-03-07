@@ -3,6 +3,7 @@ import { sql } from "@/lib/db";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import SaveStudentButton from "./save-student-direct";
 import StudentTabs from "./student-tabs";
 
 type StudentRow = {
@@ -87,13 +88,17 @@ export default async function StudentLayout({
               )}
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h1 className="font-bold leading-tight truncate">
                 {student.full_name}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Grade {student.grade}
               </p>
+            </div>
+
+            <div className="flex items-center">
+              <SaveStudentButton studentId={student.id} />
             </div>
           </div>
         </div>
